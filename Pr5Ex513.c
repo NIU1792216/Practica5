@@ -10,6 +10,7 @@ struct Dada * seg;
 float mitjana(float[], int);
 void imprimirllista(Alu * inici);
 void inserir(Alu ** inici, Alu ** actual);
+void esborrar(Alu ** inici, int niu_buscat);
 
 int main() {
     FILE * dades;
@@ -58,6 +59,10 @@ int main() {
         printf("Vols afegir les dades d'algun altre alumne?(S/n):");
         continuar = getchar();
     }
+    esborrar(&inicill, 1000961);
+    esborrar(&inicill, 1110847);
+    esborrar(&inicill, 3900285);
+    esborrar(&inicill, 3989795);
     imprimirllista(inicill);
     getchar();
     return 0;
@@ -105,3 +110,21 @@ void inserir(Alu ** inici, Alu ** actual){
     }
 }
 
+void esborrar(Alu ** inici, int niu_buscat){
+    Alu *anterior=NULL, *actual = (*inici);
+    
+    while (actual && (actual->niu != niu_buscat)){
+        anterior = actual;
+        actual = actual->seg;
+    }
+    
+    if (actual == NULL){
+        return;
+    }
+    if (anterior == NULL){
+        (*inici) = actual->seg;
+    } else{
+        anterior->seg = actual -> seg;
+    }
+    free(actual);
+}
