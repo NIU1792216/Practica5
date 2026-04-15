@@ -14,13 +14,15 @@ void esborrar(Alu ** inici, int niu_buscat, Alu *** adrecesordenamitjana, int * 
 void modificarllista(Alu ** iniciEnllacada, Alu *** ptrAdreces, int longitud);
 void imprimirenordre(Alu **llistaadreces, int longitud);
 int comparaciomitjana(const void * a, const void * b);
+Alu * cercabinarianiu(Alu ** PtrNIU, int longitud, int NIU);
 
 int main() {
     FILE * dades;
-    int n, i, lrg = 0;
+    int n, i, lrg = 0, NIUBuscat;
     Alu * inicill = NULL, * actual = NULL;
+    Alu * alumneBuscat;
     char continuar;
-    Alu ** adrecesordenamitjana = NULL;
+    Alu ** adrecesordenamitjana = NULL, ** adrecesIndex;
 
     dades = fopen("Llista.txt", "r");
     if (dades == NULL) {
@@ -69,8 +71,32 @@ int main() {
     esborrar(&inicill, 3900285, &adrecesordenamitjana, &lrg);
     esborrar(&inicill, 3989795, &adrecesordenamitjana, &lrg);
     imprimirllista(inicill);
-    qsort(adrecesordenamitjana, lrg, sizeof(Alu *), comparaciomitjana);
-    imprimirenordre(adrecesordenamitjana, lrg);
+    
+    if ((adrecesIndex = (Alu **)malloc(sizeof(Alu *)*lrg))==NULL){
+        printf("Problema assignant espai de memoria\n");
+        return 2;
+    }
+    for (i=0; i<lrg; i++){
+        adrecesIndex[i]=adrecesordenamitjana[i];
+    }
+    // qsort(adrecesordenamitjana, lrg, sizeof(Alu *), comparaciomitjana);
+    // imprimirenordre(adrecesordenamitjana, lrg);
+
+    printf("Introdueix el NIU a buscar:\n");
+    scanf("%d",&NIUBuscat);
+    while(NIUBuscat > 9999999 || NIUBuscat < 0){
+        printf("El niu ha d'estar entre 0 i 9999999\n");
+        printf("Introdueix el NIU a buscar:\n");
+        scanf("%d",&NIUBuscat);
+
+    }
+    alumneBuscat = cercabinarianiu(adrecesIndex, lrg, NIUBuscat);
+    printf("%d | ", alumneBuscat -> niu);
+    for (unsigned i = 0; i < 4; i++) {
+        printf("%5.1f", alumneBuscat -> notes[i]);
+    }
+    printf(" |%6.2f", alumneBuscat -> notes[4]);
+    printf("\n");
     getchar();
     return 0;
 }
@@ -174,4 +200,18 @@ int comparaciomitjana(const void * a, const void * b){
     else{
         return -1;
     }
+}
+
+Alu * cercabinarianiu(Alu ** PtrNIU, int longitud, int NIU){
+    int m, a=0, b=(longitud-1), nium;
+    do {
+        m = (a + b)/2;
+        nium = PtrNIU[m]->niu;
+
+        if (nium == NIU) return PtrNIU[m];
+        if (nium < NIU) a = m + 1;
+        else b = m - 1;
+    } while(a <= b);
+
+    return NULL;
 }
