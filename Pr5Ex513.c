@@ -113,17 +113,18 @@ void inserir(Alu ** inici, Alu ** actual){
 void esborrar(Alu ** inici, int niu_buscat){
     Alu *anterior=NULL, *actual = (*inici);
     
-    while (!(actual == NULL) && (actual->niu != niu_buscat)){
+    while (!(actual == NULL) && (actual->niu != niu_buscat) && (actual->niu < niu_buscat)){
         anterior = actual;
         actual = actual->seg;
     }
     
-    if (actual == NULL){
+    if (actual == NULL || actual->niu != niu_buscat){
         return;
     }
-    if (anterior == NULL){
+    else if (anterior == NULL){
         (*inici) = actual->seg;
-    } else{
+    } 
+    else{
         anterior->seg = actual -> seg;
     }
     free(actual);
