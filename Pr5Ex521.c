@@ -11,7 +11,9 @@ float mitjana(float[], int);
 void imprimirllista(Alu * inici);
 void inserir(Alu ** inici, Alu ** actual, Alu *** adrecesordenamitjana, int * lrg);
 void esborrar(Alu ** inici, int niu_buscat, Alu *** adrecesordenamitjana, int * lrg);
-Alu ** crearllista(Alu ** inici, int longitud);
+void modificarllista(Alu ** iniciEnllacada, Alu *** ptrAdreces, int longitud);
+void imprimirenordre(Alu **llistaadreces, int longitud);
+int comparaciomitjana(const void * a, const void * b);
 
 int main() {
     FILE * dades;
@@ -25,18 +27,22 @@ int main() {
         printf("\nNo s'ha accedit al fitxer de dades\n");
         return 1;
     }
+    // if ((adrecesordenamitjana = (Alu **)malloc(1))==NULL){
+    //     printf("Problema assignant espai de memoria\n");
+    //     return 2;
+    // }
     while (!(fscanf(dades, "%i;", &n) == EOF)) {
         if ((actual = (Alu * ) malloc(sizeof(Alu))) == NULL) {
             printf("Problema assignant espai de memoria\n");
             return 2;
         }
-        lrg++;
         actual -> niu = n;
         for (i = 0; i < 4; i++) {
             fscanf(dades, "%f", & actual -> notes[i]);
             fgetc(dades); //llegeix i descarta els ; i el \n
         }
         actual -> notes[4] = mitjana(actual -> notes, 4);
+        actual -> seg = NULL;
         inserir(&inicill, &actual, &adrecesordenamitjana, &lrg);
     }
     
@@ -67,6 +73,8 @@ int main() {
     esborrar(&inicill, 3900285, &adrecesordenamitjana, &lrg);
     esborrar(&inicill, 3989795, &adrecesordenamitjana, &lrg);
     imprimirllista(inicill);
+    qsort(adrecesordenamitjana, lrg, sizeof(Alu *), comparaciomitjana);
+    imprimirenordre(adrecesordenamitjana, lrg);
     getchar();
     return 0;
 }
@@ -112,7 +120,7 @@ void inserir(Alu ** inici, Alu ** actual, Alu *** adrecaordremitjana, int * lrg)
         }
     }
     (*lrg)++;
-    crearllista(inici, (*lrg));
+    modificarllista(inici, adrecaordremitjana, (*lrg));
 }
 
 void esborrar(Alu ** inici, int niu_buscat, Alu *** adrecaordremitjana, int * lrg){
@@ -133,22 +141,41 @@ void esborrar(Alu ** inici, int niu_buscat, Alu *** adrecaordremitjana, int * lr
     }
     free(actual);
     (*lrg)--;
+    modificarllista(inici, adrecaordremitjana, (*lrg));
 }
 
-Alu ** crearllista(Alu ** inici, int longitud){
-    Alu ** llistaadreces;
-    Alu * actual = (*inici);
+void modificarllista(Alu ** iniciEnllacada, Alu *** ptrAdreces, int longitud){
+    Alu * actual = (*iniciEnllacada);
     int i = 0;
     
-    if ((llistaadreces = (Alu ** ) malloc(longitud * sizeof(Alu *))) == NULL) {
+    if ((*ptrAdreces = (Alu ** )realloc(*ptrAdreces, sizeof(Alu *)*longitud)) == NULL) {
         printf("Problema assignant espai de memoria\n");
-        return NULL;
+        return;
     }
     while(actual!=NULL){
-        llistaadreces[i] = actual;
+        (*ptrAdreces)[i] = actual;
         i++;
         actual = actual->seg;
-
     }
-    return llistaadreces;
+}
+
+void imprimirenordre(Alu **llistaadreces, int longitud){
+    printf("  niu   |         notes        | mitjana\n");
+    for (unsigned i=0; i<longitud; i++){
+        printf("%d | ", llistaadreces[i] -> niu);
+        for (unsigned j = 0; j < 4; j++) {
+            printf("%5.1f", llistaadreces[i] -> notes[j]);
+        }
+        printf(" |%6.2f", llistaadreces[i] -> notes[4]);
+        printf("\n");
+    }
+}
+
+int comparaciomitjana(const void * a, const void * b){
+    if ((*(Alu **)a)->notes[4] > (*(Alu **)b)->notes[4]){
+        return 1;
+    }
+    else{
+        return -1;
+    }
 }
